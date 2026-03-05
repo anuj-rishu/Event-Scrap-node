@@ -2,7 +2,7 @@ const axios = require("axios");
 
 const getHackathons = async (req, res) => {
   try {
-    const page = req.query.page || 1;
+    const { page = 1, region, teamsize } = req.query;
 
     const response = await axios.get(
       "https://unstop.com/api/public/opportunity/search-result",
@@ -12,18 +12,22 @@ const getHackathons = async (req, res) => {
           page: page,
           per_page: 18,
           oppstatus: "open",
+          region: region || "", 
+          teamsize: teamsize || "", 
           undefined: true,
         },
         headers: {
           accept: "application/json, text/plain, */*",
           "user-agent": "Mozilla/5.0",
           referer: "https://unstop.com/hackathons",
-          token: req.sessionToken, 
+          token: req.sessionToken,
         },
       },
     );
 
-    const list = response.data?.data?.data || [];
+    const rawData = response.data?.data || {};
+    const list = rawData.data || [];
+    const totalCount = rawData.total || 0;
 
     const formatted = list.map((item) => {
       const min = item.regnRequirements?.min_team_size || "";
@@ -35,18 +39,21 @@ const getHackathons = async (req, res) => {
 
       return {
         title: item.title,
+        id: item.short_id,
         college: item.organisation?.name,
         members: `${min} - ${max} Members`,
         location,
         posted: item.approved_date,
         days_left: item.regnRequirements?.remain_days,
         link: item.seo_url,
+        image: item.logoUrl2,
       };
     });
 
     res.json({
       page: Number(page),
-      total: formatted.length,
+      total: totalCount,
+      per_page: rawData.per_page || 18,
       hackathons: formatted,
     });
   } catch (err) {
