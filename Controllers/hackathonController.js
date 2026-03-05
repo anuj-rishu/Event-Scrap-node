@@ -1,4 +1,5 @@
 const axios = require("axios");
+const logger = require("../Utils/logger");
 
 const getHackathons = async (req, res) => {
   try {
@@ -12,8 +13,8 @@ const getHackathons = async (req, res) => {
           page: page,
           per_page: 18,
           oppstatus: "open",
-          region: region || "", 
-          teamsize: teamsize || "", 
+          region: region || "",
+          teamsize: teamsize || "",
           undefined: true,
         },
         headers: {
@@ -57,7 +58,7 @@ const getHackathons = async (req, res) => {
       hackathons: formatted,
     });
   } catch (err) {
-    console.log(err.response?.data || err.message);
+    logger.error(JSON.stringify(err.response?.data) || err.message);
     res.status(500).json({ error: "Failed to fetch hackathons" });
   }
 };

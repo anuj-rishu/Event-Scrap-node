@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const hackathonRoutes = require("./Routes/hackathonRoutes");
+const logger = require("./Utils/logger");
 
 const app = express();
 
@@ -15,4 +16,4 @@ app.use("/api", apiLimiter);
 app.use("/api", hackathonRoutes);
 
 const PORT = process.env.PORT;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));
